@@ -181,17 +181,29 @@ Each execution runs in a Docker container with:
 - **No privilege escalation** (`--security-opt no-new-privileges`)
 - **Ephemeral** — container destroyed after each execution
 
-## OpenShift Deployment
+## Kubernetes / OpenShift Deployment
+
+We provide a bundled generic Helm chart to deploy the entire stack—API, Redis internal queue, and React dashboard—into any Kubernetes or OpenShift cluster.
 
 ```bash
-# Apply all manifests
-oc apply -f openshift/
+# Review default values and customize if needed
+cat helm/code-executor/values.yaml
 
-# Update secrets
-oc create secret generic code-executor-secrets \
-  --from-literal=CODE_EXEC_API_KEYS='["your-key"]' \
-  --from-literal=CODE_EXEC_REDIS_URL='redis://redis:6379/0'
+# Create the namespace
+kubectl create namespace code-executor
+kubectl config set-context --current --namespace=code-executor
+
+# Deploy the Helm chart
+helm install code-executor ./helm/code-executor/
+
+# (Optional) OpenShift specific: Expose the API route manually if route.enabled=false
+oc expose svc/code-executor-api
 ```
+
+By default:
+- **Redis** is spun up alongside the API (`redis.enabled: true`).
+- **Frontend** dashboard is included (`frontend.enabled: true`).
+- **API configuration** is dynamically mapped via `config` block in `values.yaml`.
 
 ## Tech Stack
 
