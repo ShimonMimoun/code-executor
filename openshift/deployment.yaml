@@ -1,0 +1,59 @@
+# OpenShift Deployment for Code Executor API
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: code-executor-api
+  labels:
+    app: code-executor
+    component: api
+spec:
+  replicas: 2
+  selector:
+    matchLabels:
+      app: code-executor
+      component: api
+  template:
+    metadata:
+      labels:
+        app: code-executor
+        component: api
+    spec:
+      serviceAccountName: code-executor-sa
+      containers:
+        - name: api
+          image: image-registry.openshift-image-registry.svc:5000/$(NAMESPACE)/code-executor-api:latest
+          ports:
+            - containerPort: 8000
+              protocol: TCP
+          envFrom:
+            - configMapRef:
+                name: code-executor-config
+            - secretRef:
+                name: code-executor-secrets
+          resources:
+            requests:
+              cpu: "250m"
+              memory: "256Mi"
+            limits:
+              cpu: "1000m"
+              memory: "512Mi"
+          livenessProbe:
+            httpGet:
+              path: /health
+              port: 8000
+            initialDelaySeconds: 10
+            periodSeconds: 30
+          readinessProbe:
+            httpGet:
+              path: /ready
+              port: 8000
+            initialDelaySeconds: 5
+            periodSeconds: 10
+          volumeMounts:
+            - name: docker-socket
+              mountPath: /var/run/docker.sock
+      volumes:
+        - name: docker-socket
+          hostPath:
+            path: /var/run/docker.sock
+            type: Socket

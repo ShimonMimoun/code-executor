@@ -1,0 +1,61 @@
+# ================================================
+# Code Executor Platform — Local Development
+# ================================================
+
+services:
+  # --- Redis ---
+  redis:
+    image: redis:7-alpine
+    ports:
+      - "6379:6379"
+    volumes:
+      - redis-data:/data
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 5s
+      timeout: 3s
+      retries: 5
+
+  # --- FastAPI Backend ---
+  api:
+    build:
+      context: ./backend
+      dockerfile: Dockerfile
+    ports:
+      - "8000:8000"
+    environment:
+      - CODE_EXEC_DEBUG=true
+      - CODE_EXEC_REDIS_URL=redis://redis:6379/0
+      - CODE_EXEC_DOCKER_BASE_URL=unix:///var/run/docker.sock
+      - CODE_EXEC_SANDBOX_IMAGE=code-executor-sandbox:latest
+      - CODE_EXEC_API_KEYS=["dev-api-key-change-me","test-key"]
+      - CODE_EXEC_CORS_ORIGINS=["http://localhost:3000","http://localhost:5173"]
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock
+    depends_on:
+      redis:
+        condition: service_healthy
+    restart: unless-stopped
+
+  # --- Sandbox Image Builder ---
+  sandbox-builder:
+    build:
+      context: ./sandbox
+      dockerfile: Dockerfile
+    image: code-executor-sandbox:latest
+    entrypoint: ["echo", "Sandbox image built successfully"]
+
+  # --- React Frontend ---
+  frontend:
+    build:
+      context: ./frontend
+      dockerfile: Dockerfile
+    ports:
+      - "3000:3000"
+    environment:
+      - VITE_API_URL=http://localhost:8000
+    depends_on:
+      - api
+
+volumes:
+  redis-data:

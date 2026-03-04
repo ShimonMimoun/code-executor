@@ -1,0 +1,98 @@
+---
+# ConfigMap — non-secret configuration
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: code-executor-config
+  labels:
+    app: code-executor
+data:
+  CODE_EXEC_APP_NAME: "Code Executor Platform"
+  CODE_EXEC_DEBUG: "false"
+  CODE_EXEC_SANDBOX_IMAGE: "code-executor-sandbox:latest"
+  CODE_EXEC_DEFAULT_TIMEOUT: "30"
+  CODE_EXEC_MAX_TIMEOUT: "120"
+  CODE_EXEC_DEFAULT_MEMORY_LIMIT: "256m"
+  CODE_EXEC_MAX_MEMORY_LIMIT: "512m"
+  CODE_EXEC_MAX_CONCURRENT_EXECUTIONS: "10"
+  CODE_EXEC_CORS_ORIGINS: '["https://code-executor.apps.your-cluster.com"]'
+
+---
+# Secrets — sensitive values (base64 encoded)
+apiVersion: v1
+kind: Secret
+metadata:
+  name: code-executor-secrets
+  labels:
+    app: code-executor
+type: Opaque
+stringData:
+  CODE_EXEC_REDIS_URL: "redis://redis:6379/0"
+  CODE_EXEC_API_KEYS: '["your-production-api-key-here"]'
+
+---
+# ServiceAccount for Docker socket access
+apiVersion: v1
+kind: ServiceAccount
+metadata:
+  name: code-executor-sa
+  labels:
+    app: code-executor
+
+---
+# Redis Deployment
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: code-executor-redis
+  labels:
+    app: code-executor
+    component: redis
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: code-executor
+      component: redis
+  template:
+    metadata:
+      labels:
+        app: code-executor
+        component: redis
+    spec:
+      containers:
+        - name: redis
+          image: redis:7-alpine
+          ports:
+            - containerPort: 6379
+          resources:
+            requests:
+              cpu: "100m"
+              memory: "128Mi"
+            limits:
+              cpu: "500m"
+              memory: "256Mi"
+          volumeMounts:
+            - name: redis-data
+              mountPath: /data
+      volumes:
+        - name: redis-data
+          emptyDir: {}
+
+---
+# Redis Service
+apiVersion: v1
+kind: Service
+metadata:
+  name: redis
+  labels:
+    app: code-executor
+    component: redis
+spec:
+  selector:
+    app: code-executor
+    component: redis
+  ports:
+    - port: 6379
+      targetPort: 6379
+  type: ClusterIP

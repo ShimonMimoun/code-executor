@@ -1,0 +1,64 @@
+# ==========================================
+# Code Executor - Environment Configuration
+# ==========================================
+# Note: Since this is a TOML config mapped to Pydantic Settings,
+# the keys map exactly to the Python variable names in backend/app/config.py
+# Environment variables can override these if prefixed with CODE_EXEC_
+# ==========================================
+
+# --- App ---
+app_name = "Code Executor Platform"
+debug = false
+
+# --- API ---
+api_prefix = "/api/v1"
+cors_origins = ["http://localhost:3000", "http://localhost:5173"]
+
+# --- Auth ---
+api_keys = ["dev-api-key-change-me", "prod-api-key"]
+
+# --- Redis Configuration ---
+redis_url = "redis://localhost:6379/0"
+result_ttl_seconds = 3600
+
+# --- Docker Sandbox Limits & Settings ---
+docker_base_url = "unix:///var/run/docker.sock"
+sandbox_image = "code-executor-sandbox:latest"
+default_timeout = 30
+max_timeout = 120
+default_memory_limit = "256m"
+default_cpu_limit = 1.0
+max_concurrent_executions = 10
+
+# --- Supported Languages Configuration ---
+supported_languages = ["python", "javascript", "go", "bash", "java", "csharp", "html", "react"]
+
+# Python
+python_versions = { "3.9" = "python:3.9-slim", "3.10" = "python:3.10-slim", "3.11" = "python:3.11-slim", "3.12" = "python:3.12-slim", "3.13" = "python:3.13-slim" }
+python_default_version = "3.12"
+
+# Node.js
+javascript_versions = { "18" = "node:18-slim", "19" = "node:19-slim", "20" = "node:20-slim", "21" = "node:21-slim", "22" = "node:22-slim", "23" = "node:23-slim", "24" = "node:24-slim" }
+javascript_default_version = "22"
+
+# Go
+go_versions = { "1.20" = "golang:1.20-alpine", "1.21" = "golang:1.21-alpine", "1.22" = "golang:1.22-alpine", "1.23" = "golang:1.23-alpine" }
+go_default_version = "1.22"
+
+# Java
+java_versions = { "17" = "eclipse-temurin:17-jdk-alpine", "21" = "eclipse-temurin:21-jdk-alpine", "22" = "eclipse-temurin:22-jdk-alpine", "23" = "eclipse-temurin:23-jdk-alpine" }
+java_default_version = "21"
+
+# C#
+csharp_versions = { "8" = "mcr.microsoft.com/dotnet/sdk:8.0-alpine", "9" = "mcr.microsoft.com/dotnet/sdk:9.0-alpine" }
+csharp_default_version = "8"
+
+# Bash
+bash_versions = { "5" = "bash:5" }
+bash_default_version = "5"
+
+# HTML/React (Web execution, no sandbox image hence empty strings handling)
+html_versions = { "5" = "" }
+html_default_version = "5"
+react_versions = { "18" = "", "19" = "" }
+react_default_version = "19"

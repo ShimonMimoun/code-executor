@@ -1,0 +1,38 @@
+---
+# Service
+apiVersion: v1
+kind: Service
+metadata:
+  name: code-executor-api
+  labels:
+    app: code-executor
+    component: api
+spec:
+  selector:
+    app: code-executor
+    component: api
+  ports:
+    - port: 8000
+      targetPort: 8000
+      protocol: TCP
+      name: http
+  type: ClusterIP
+
+---
+# Route (OpenShift HTTPS ingress)
+apiVersion: route.openshift.io/v1
+kind: Route
+metadata:
+  name: code-executor-api
+  labels:
+    app: code-executor
+spec:
+  to:
+    kind: Service
+    name: code-executor-api
+    weight: 100
+  port:
+    targetPort: http
+  tls:
+    termination: edge
+    insecureEdgeTerminationPolicy: Redirect
