@@ -195,9 +195,10 @@ oc create secret generic code-executor-secrets \
 
 ## Tech Stack
 
-- **Backend**: FastAPI, Python 3.12, Redis, Docker SDK
+- **Backend**: FastAPI, Python 3.12, Redis, Docker SDK, `uv` (Package Manager), TOML
 - **Frontend**: React 19, Vite, Monaco Editor
-- **Sandbox**: Python, Node.js, Go, Bash
+- **Sandbox**: Python, Node.js, Go, Java, C#, Bash, HTML, React
+- **Integration**: MCP (Model Context Protocol) Server
 - **DevOps**: Docker Compose, OpenShift
 
 ## License
