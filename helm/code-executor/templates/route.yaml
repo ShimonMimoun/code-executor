@@ -1,0 +1,20 @@
+{{- if .Values.route.enabled -}}
+apiVersion: route.openshift.io/v1
+kind: Route
+metadata:
+  name: {{ include "code-executor.fullname" . }}-api
+  labels:
+    {{- include "code-executor.labels" . | nindent 4 }}
+spec:
+  {{- if .Values.route.host }}
+  host: {{ .Values.route.host }}
+  {{- end }}
+  to:
+    kind: Service
+    name: {{ include "code-executor.fullname" . }}-api
+    weight: 100
+  port:
+    targetPort: http
+  tls:
+    {{- toYaml .Values.route.tls | nindent 4 }}
+{{- end }}

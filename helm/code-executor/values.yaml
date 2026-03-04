@@ -1,0 +1,133 @@
+# Default values for code-executor.
+# This is a YAML-formatted file.
+# Declare variables to be passed into your templates.
+
+replicaCount: 2
+
+image:
+  repository: code-executor-api # Override for OpenShift: image-registry.openshift-image-registry.svc:5000/YOUR_NAMESPACE/code-executor-api
+  pullPolicy: IfNotPresent
+  # Overrides the image tag whose default is the chart appVersion.
+  tag: "latest"
+
+imagePullSecrets: []
+nameOverride: ""
+fullnameOverride: ""
+
+serviceAccount:
+  # Specifies whether a service account should be created
+  create: true
+  # Annotations to add to the service account
+  annotations: {}
+  # The name of the service account to use.
+  # If not set and create is true, a name is generated using the fullname template
+  name: "code-executor-sa"
+
+podAnnotations: {}
+
+podSecurityContext: {}
+  # fsGroup: 2000
+
+securityContext: {}
+  # capabilities:
+  #   drop:
+  #   - ALL
+  # readOnlyRootFilesystem: true
+  # runAsNonRoot: true
+  # runAsUser: 1000
+
+service:
+  type: ClusterIP
+  port: 8000
+
+ingress:
+  enabled: false
+  className: ""
+  annotations: {}
+  hosts:
+    - host: code-executor.local
+      paths:
+        - path: /
+          pathType: ImplementationSpecific
+  tls: []
+
+route:
+  enabled: true # Recommended true for OpenShift
+  host: ""
+  tls:
+    termination: edge
+    insecureEdgeTerminationPolicy: Redirect
+
+resources:
+  requests:
+    cpu: 250m
+    memory: 256Mi
+  limits:
+    cpu: 1000m
+    memory: 512Mi
+
+autoscaling:
+  enabled: false
+  minReplicas: 2
+  maxReplicas: 10
+  targetCPUUtilizationPercentage: 80
+
+redis:
+  enabled: true
+  image:
+    repository: redis
+    tag: 7-alpine
+    pullPolicy: IfNotPresent
+  resources:
+    requests:
+      cpu: 100m
+      memory: 128Mi
+    limits:
+      cpu: 250m
+      memory: 256Mi
+
+frontend:
+  enabled: true
+  replicaCount: 1
+  image:
+    repository: code-executor-frontend # Override for OpenShift
+    tag: latest
+    pullPolicy: IfNotPresent
+  apiUrl: "http://code-executor.local/api/v1" # External URL for the React app to hit the API
+  resources:
+    requests:
+      cpu: 100m
+      memory: 128Mi
+    limits:
+      cpu: 250m
+      memory: 256Mi
+
+nodeSelector: {}
+tolerations: []
+affinity: {}
+
+# OpenShift specific settings
+mountDockerSocket: true
+dockerSocketPath: /var/run/docker.sock
+
+# Application Configuration
+config:
+  app_name: "Code Executor Platform"
+  debug: "false"
+  api_prefix: "/api/v1"
+  cors_origins: '["*"]'
+  docker_base_url: "unix:///var/run/docker.sock"
+  sandbox_image: "code-executor-sandbox:latest"
+  default_timeout: "30"
+  max_timeout: "120"
+  default_memory_limit: "256m"
+  default_cpu_limit: "1.0"
+  max_concurrent_executions: "10"
+  supported_languages: '["python", "javascript", "go", "bash", "java", "csharp", "html", "react"]'
+  python_versions: '{"3.9": "python:3.9-slim", "3.10": "python:3.10-slim", "3.11": "python:3.11-slim", "3.12": "python:3.12-slim", "3.13": "python:3.13-slim"}'
+  python_default_version: "3.12"
+
+secretConfig:
+  # Default development keys
+  api_keys: '["dev-api-key-change-me", "prod-api-key"]'
+  redis_url: "redis://redis-master:6379/0"

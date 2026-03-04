@@ -1,0 +1,19 @@
+{{- if .Values.frontend.enabled -}}
+apiVersion: v1
+kind: Service
+metadata:
+  name: {{ include "code-executor.fullname" . }}-frontend
+  labels:
+    {{- include "code-executor.labels" . | nindent 4 }}
+    component: frontend
+spec:
+  type: ClusterIP
+  ports:
+    - port: 80
+      targetPort: 3000
+      protocol: TCP
+      name: http
+  selector:
+    app: code-executor
+    component: frontend
+{{- end }}

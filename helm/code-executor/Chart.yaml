@@ -1,0 +1,6 @@
+apiVersion: v2
+name: code-executor
+description: A Helm chart for deploying the Code Executor Platform (FastAPI backend + React frontend + Sandbox support)
+type: application
+version: 0.1.0
+appVersion: "1.0.0"
