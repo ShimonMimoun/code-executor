@@ -8,9 +8,11 @@ dependencies = [
     "docker>=7.1,<7.2",
     "fastapi>=0.115,<0.116",
     "httpx>=0.28,<0.29",
+    "mcp>=1.26.0",
     "pydantic-settings>=2.7,<2.8",
     "python-multipart==0.0.18",
     "redis[hiredis]>=5.2,<5.3",
+    "sse-starlette>=3.0.3",
     "uvicorn[standard]>=0.34,<0.35",
     "websockets==14.1",
 ]

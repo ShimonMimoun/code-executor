@@ -7,7 +7,7 @@ from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 
 from app.config import settings
-from app.routers import execute, health
+from app.routers import execute, health, mcp
 from app.services.queue import execution_queue
 from app.services.sandbox import sandbox_manager
 
@@ -71,6 +71,10 @@ app.add_middleware(
 # Register routers
 app.include_router(health.router)
 app.include_router(execute.router)
+
+from app.routers.mcp import sse_asgi_app, messages_asgi_app
+app.add_route("/api/v1/mcp/sse", sse_asgi_app, methods=["GET"])
+app.add_route("/api/v1/mcp/messages", messages_asgi_app, methods=["POST"])
 
 
 @app.get("/", tags=["Root"])
